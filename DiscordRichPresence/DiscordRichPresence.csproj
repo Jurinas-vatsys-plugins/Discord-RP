@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>11</LangVersion>
+    <AssemblyName>VatSys.DiscordRichPresence</AssemblyName>
+    <VatSysPath Condition="'$(VatSysPath)' == ''">$(MSBuildThisFileDirectory)..\VATSYS-Recovered-Source-main\vatSys\bin\vatSys.exe</VatSysPath>
+    <VatSysDirectory>$([System.IO.Path]::GetDirectoryName('$(VatSysPath)'))</VatSysDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="vatSys"><HintPath>$(VatSysPath)</HintPath><Private>false</Private></Reference>
+    <Reference Include="RossCarlson.Vatsim.Network"><HintPath>$(VatSysDirectory)\RossCarlson.Vatsim.Network.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <None Update="presence.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\VATSYS-Recovered-Source-main\vatSys\app.ico" Link="app.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckVatSysReference" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(VatSysPath)')" Text="vatSys.exe was not found. Build with -p:VatSysPath=&quot;C:\path\to\vatSys\bin\vatSys.exe&quot;." />
+  </Target>
+</Project>
