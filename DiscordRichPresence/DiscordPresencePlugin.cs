@@ -27,8 +27,8 @@ namespace VatSys.DiscordRichPresence
 
         public DiscordPresencePlugin()
         {
-            Application.ApplicationExit += OnExit;
             AppDomain.CurrentDomain.ProcessExit += OnExit;
+            Log("Plugin loaded from " + typeof(DiscordPresencePlugin).Assembly.Location);
             Task.Run(Run);
         }
 
@@ -47,14 +47,16 @@ namespace VatSys.DiscordRichPresence
                     if (settings == null || string.IsNullOrWhiteSpace(settings.ApplicationId) ||
                         !settings.ApplicationId.All(char.IsDigit))
                         throw new InvalidOperationException("Set ApplicationId in presence.json to your Discord application's numeric ID.");
+                    Log("Configuration loaded for application " + settings.ApplicationId);
 
                     for (int index = 0; index < 10 && !token.IsCancellationRequested; index++)
                     {
                         using (var ipc = new DiscordIpc("discord-ipc-" + index))
                         {
-                            try { ipc.Connect(200); }
+                            try { ipc.Connect(500); }
                             catch (TimeoutException) { continue; }
                             catch (IOException) { continue; }
+                            Log("Connected to discord-ipc-" + index);
                             lock (connectionLock)
                             {
                                 token.ThrowIfCancellationRequested();
@@ -66,7 +68,7 @@ namespace VatSys.DiscordRichPresence
                     }
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
-                catch (Exception ex) { Log(ex.Message); }
+                catch (Exception ex) { Log(ex.ToString()); }
                 finally { lock (connectionLock) current = null; }
                 try { await Task.Delay(5000, token).ConfigureAwait(false); }
                 catch (OperationCanceledException) { break; }
@@ -77,7 +79,6 @@ namespace VatSys.DiscordRichPresence
             JavaScriptSerializer serializer, CancellationToken token)
         {
             var ready = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            // Separate serializer instances keep the reader and writer independent.
             var decoder = new JavaScriptSerializer();
             Task reader = ipc.ReadLoop(json => decoder.Deserialize<Dictionary<string, object>>(json), ready, Log, token);
             try
@@ -87,15 +88,23 @@ namespace VatSys.DiscordRichPresence
                 if (first == reader) await reader.ConfigureAwait(false);
                 if (first != ready.Task) throw new IOException("Discord RPC handshake timed out.");
                 await ready.Task.ConfigureAwait(false);
+                Log("Discord RPC ready.");
                 string previous = null;
                 while (!token.IsCancellationRequested)
                 {
                     if (reader.IsCompleted) await reader.ConfigureAwait(false);
-                    bool connected;
-                    try { connected = Network.IsConnected; }
-                    catch (NullReferenceException) { connected = false; }
-                    bool observer = connected && string.Equals(Network.Facility.ToString(), "OBS", StringComparison.OrdinalIgnoreCase);
-                    var activity = builder.Build(settings, connected, observer, connected ? Network.Callsign : null);
+                    bool connected = false;
+                    bool observer = false;
+                    string callsign = null;
+                    try
+                    {
+                        connected = Network.IsConnected;
+                        callsign = connected ? Network.Callsign : null;
+                        observer = connected &&
+                            string.Equals(Network.Facility.ToString(), "OBS", StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch (Exception ex) { Log("Could not read vatSys network state: " + ex.Message); }
+                    var activity = builder.Build(settings, connected, observer, callsign);
                     string signature = serializer.Serialize(activity);
                     if (signature != previous)
                     {
@@ -105,6 +114,7 @@ namespace VatSys.DiscordRichPresence
                             args = new { pid = Process.GetCurrentProcess().Id, activity },
                             nonce = Guid.NewGuid().ToString("N")
                         }), token).ConfigureAwait(false);
+                        Log("Presence sent: " + signature);
                         previous = signature;
                     }
                     await Task.WhenAny(reader, Task.Delay(5000, token)).ConfigureAwait(false);
@@ -112,6 +122,7 @@ namespace VatSys.DiscordRichPresence
             }
             finally
             {
+                Log("Discord connection ended.");
                 ipc.Dispose();
                 try { await reader.ConfigureAwait(false); }
                 catch (Exception) { /* Closing the pipe releases its pending read. */ }
@@ -136,8 +147,8 @@ namespace VatSys.DiscordRichPresence
         public void Dispose()
         {
             if (Interlocked.Exchange(ref disposed, 1) != 0) return;
-            Application.ApplicationExit -= OnExit;
             AppDomain.CurrentDomain.ProcessExit -= OnExit;
+            Log("Plugin disposed.");
             shutdown.Cancel();
             lock (connectionLock) current?.Dispose();
         }

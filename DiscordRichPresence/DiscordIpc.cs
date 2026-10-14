@@ -66,6 +66,11 @@ namespace VatSys.DiscordRichPresence
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                error(ex.ToString());
+                throw;
+            }
             finally { ready.TrySetCanceled(); }
         }
 

@@ -35,7 +35,13 @@ Change the path to match your installation. This project uses .NET Framework lib
 
 ## Install
 
-Copy these files from `DiscordRichPresence\bin\Release\net472` into a single subfolder of your profile's `Plugins` directory (for example `Plugins\DiscordRichPresence`), or into the installed application's `bin\Plugins\DiscordRichPresence` directory:
+Copy these files from `DiscordRichPresence\bin\Release\net472` into a single subfolder of the profile you use:
+
+```text
+Documents\vatSys Files\Profiles\<Your Profile>\Plugins\DiscordRichPresence
+```
+
+Profile installation is recommended because vatSys loads profile plugins. Install only one copy for a profile; do not place the same DLL in both the profile and application `bin\Plugins` directories. If you use multiple profiles, copy the folder to each profile.
 
 ```text
 VatSys.DiscordRichPresence.dll
@@ -43,7 +49,7 @@ presence.json
 app.ico
 ```
 
-Set the Application ID in the deployed `presence.json`, then restart vatSys. Install one copy of the plugin. If you edit configuration while connected, restart vatSys to apply it immediately; it is also reloaded on reconnection.
+Set the Application ID in the deployed `presence.json`, then restart vatSys. Remove any old duplicate plugin folder such as `Discord-RP`. If you edit configuration while connected, restart vatSys to apply it immediately; it is also reloaded on reconnection.
 
 Logs: `%LOCALAPPDATA%\VatSys.DiscordRichPresence\presence.log`. Missing Discord is retried quietly. Invalid configuration and Discord RPC errors are logged without interrupting vatSys.
 

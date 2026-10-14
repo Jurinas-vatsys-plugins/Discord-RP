@@ -13,7 +13,7 @@ $output = Join-Path $root 'DiscordRichPresence\bin\Release\net472'
 Copy-Item (Join-Path $output 'VatSys.DiscordRichPresence.dll') $release
 Copy-Item (Join-Path $root 'DiscordRichPresence\presence.json') $release
 Copy-Item (Join-Path $root 'VATSYS-Recovered-Source-main\vatSys\app.ico') (Join-Path $release 'app.ico')
-$zip = Join-Path $root 'vatSys-Discord-RP-v1.0.0.zip'
+$zip = Join-Path $root 'vatSys-Discord-RP-v1.0.1.zip'
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
 Compress-Archive -Path (Join-Path $release '*') -DestinationPath $zip
 Write-Output "Release package: $zip"

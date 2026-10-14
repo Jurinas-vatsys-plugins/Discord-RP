@@ -11,8 +11,8 @@
     <Reference Include="vatSys"><HintPath>$(VatSysPath)</HintPath><Private>false</Private></Reference>
     <Reference Include="RossCarlson.Vatsim.Network"><HintPath>$(VatSysDirectory)\RossCarlson.Vatsim.Network.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web.Extensions" />
     <None Update="presence.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\VATSYS-Recovered-Source-main\vatSys\app.ico" Link="app.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
