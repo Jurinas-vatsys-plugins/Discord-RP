@@ -1,4 +1,4 @@
-# vatSys Discord Rich Presence
+# vatSys
 
 A .NET Framework 4.7.2 / x86 MEF plugin for vatSys. All activity text is English.
 
@@ -12,7 +12,7 @@ The elapsed timer resets when the connection mode or callsign changes. Presence 
 
 ## Discord setup
 
-1. Create an application at https://discord.com/developers/applications and name it **vatSys**.
+1. In https://discord.com/developers/applications, set the Discord application's name to **vatSys**. Discord displays the Developer Portal application name as the activity title; the plugin cannot rename that application through RPC.
 2. Copy its **Application ID** into `ApplicationId` in `presence.json`. No bot token is needed.
 3. Export the supplied vatSys `app.ico` to PNG:
 

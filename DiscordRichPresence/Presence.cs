@@ -7,7 +7,7 @@ namespace VatSys.DiscordRichPresence
     {
         public string ApplicationId { get; set; } = "";
         public string LargeImageKey { get; set; } = "vatsys";
-        public string LargeImageText { get; set; } = "vatSys | Your airspace, under control";
+        public string LargeImageText { get; set; } = "vatSys";
         public string IdleDetails { get; set; } = "Idle";
         public string IdleState { get; set; } = "Radar on standby";
         public string ObserverDetails { get; set; } = "Watching your six";

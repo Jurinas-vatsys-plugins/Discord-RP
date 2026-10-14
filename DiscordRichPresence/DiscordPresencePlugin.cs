@@ -23,7 +23,7 @@ namespace VatSys.DiscordRichPresence
         private readonly object connectionLock = new object();
         private int disposed;
 
-        public string Name => "Discord Rich Presence";
+        public string Name => "vatSys";
 
         public DiscordPresencePlugin()
         {
