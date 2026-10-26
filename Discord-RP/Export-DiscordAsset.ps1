@@ -1,5 +1,5 @@
 param(
-    [string]$IconPath = "$PSScriptRoot\..\VATSYS-Recovered-Source-main\vatSys\app.ico",
+    [string]$IconPath = "$PSScriptRoot\..\..\source-code\vatSys\app.ico",
     [string]$OutputPath = "$PSScriptRoot\vatsys.png"
 )
 $ErrorActionPreference = 'Stop'

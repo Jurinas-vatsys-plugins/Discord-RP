@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\DiscordRichPresence\Presence.cs" Link="Presence.cs" />
-    <Compile Include="..\DiscordRichPresence\DiscordIpc.cs" Link="DiscordIpc.cs" />
+    <Compile Include="..\Discord-RP\Presence.cs" Link="Presence.cs" />
+    <Compile Include="..\Discord-RP\DiscordIpc.cs" Link="DiscordIpc.cs" />
   </ItemGroup>
 </Project>

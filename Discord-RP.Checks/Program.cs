@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using VatSys.DiscordRichPresence;
+using DiscordRP;
 
 static void Require(bool condition, string message)
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VatSys.DiscordRichPresence
+namespace DiscordRP
 {
     public sealed class PresenceSettings
     {

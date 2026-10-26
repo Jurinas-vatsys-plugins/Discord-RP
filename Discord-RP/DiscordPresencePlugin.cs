@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using vatsys;
 using vatsys.Plugin;
 
-namespace VatSys.DiscordRichPresence
+namespace DiscordRP
 {
     [Export(typeof(IPlugin))]
     public sealed class DiscordPresencePlugin : IPlugin, IDisposable
@@ -23,7 +23,7 @@ namespace VatSys.DiscordRichPresence
         private readonly object connectionLock = new object();
         private int disposed;
 
-        public string Name => "vatSys";
+        public string Name => "Discord-RP";
 
         public DiscordPresencePlugin()
         {
@@ -133,7 +133,7 @@ namespace VatSys.DiscordRichPresence
         {
             try
             {
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VatSys.DiscordRichPresence");
+                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Discord-RP");
                 Directory.CreateDirectory(path);
                 string file = Path.Combine(path, "presence.log");
                 if (File.Exists(file) && new FileInfo(file).Length > 1024 * 1024) File.Delete(file);

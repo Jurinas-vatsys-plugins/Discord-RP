@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VatSys.DiscordRichPresence
+namespace DiscordRP
 {
     // Discord's local RPC framing: little-endian opcode, byte length, UTF-8 JSON.
     public sealed class DiscordIpc : IDisposable
