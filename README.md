@@ -38,40 +38,47 @@ The plugin references the vatSys executable because it implements the vatSys plu
 ```powershell
 dotnet restore .\DiscordRichPresence\DiscordRichPresence.csproj --ignore-failed-sources
 dotnet build .\DiscordRichPresence\DiscordRichPresence.csproj -c Release --no-restore `
-  -p:VatSysPath="I:\vatSys\vatSys\bin\vatSys.exe"
+  -p:VatSysPath="C:\Program Files (x86)\vatSys\bin\vatSys.exe" `
+  -p:AppIconPath="C:\path\to\source-code\vatSys\app.ico"
 ```
 
-Replace the `VatSysPath` value with the location of your installed vatSys executable. The build requires:
+Replace `VatSysPath` with your installed vatSys executable and `AppIconPath` with the vatSys `app.ico`. By default the project looks for `..\..\vatSys\bin\vatSys.exe` and `..\..\source-code\vatSys\app.ico` relative to the project folder. The build requires:
 
 - .NET SDK
 - .NET Framework 4.7.2 reference assemblies
 - An x86-compatible vatSys executable and its `RossCarlson.Vatsim.Network.dll`
 
-The release helper uses the supplied development copy automatically:
+The release helper builds the plugin and creates `vatSys-Discord-RP-v<version>.zip`:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\build-release.ps1
+powershell -ExecutionPolicy Bypass -File .\build-release.ps1 `
+  -VatSysExe "C:\Program Files (x86)\vatSys\bin\vatSys.exe" `
+  -AppIcon "C:\path\to\source-code\vatSys\app.ico"
 ```
 
 ## Installation
 
-Install the plugin into the profile that you use in vatSys:
+The release zip mirrors the vatSys installation folder. Extract it directly into the vatSys root, which is the folder that contains `bin\vatSys.exe` (by default `C:\Program Files (x86)\vatSys`). Choose to merge folders if Windows asks. The result is:
+
+```text
+<vatSys root>\bin\Plugins\DiscordRichPresence\VatSys.DiscordRichPresence.dll
+<vatSys root>\bin\Plugins\DiscordRichPresence\presence.json
+<vatSys root>\bin\Plugins\DiscordRichPresence\app.ico
+```
+
+vatSys loads every plugin under `bin\Plugins` for all profiles, so one copy covers every profile. Writing to `C:\Program Files (x86)` requires administrator rights.
+
+You can also run `DiscordRichPresence\Install-Plugin.ps1 -VatSysRoot "<vatSys root>"` from a folder containing the built files.
+
+### Profile installation (alternative)
+
+To enable the plugin for one profile only, copy the three files into:
 
 ```text
 Documents\vatSys Files\Profiles\<Your Profile>\Plugins\DiscordRichPresence
 ```
 
-Copy these files into that directory:
-
-```text
-VatSys.DiscordRichPresence.dll
-presence.json
-app.ico
-```
-
-Install one copy per profile. If you use multiple profiles, copy the directory to each profile's `Plugins` folder.
-
-Do not install the same plugin in both a profile directory and the application-wide directory. Remove old duplicate folders such as `Discord-RP` before starting vatSys.
+Do not install the plugin in both the vatSys root and a profile. vatSys loads profile plugins first and ignores the second copy, so the `presence.json` beside the profile copy is the one that is used. Remove old duplicate folders such as `Discord-RP` before starting vatSys.
 
 Restart vatSys after installation. Start Discord before or after vatSys; the plugin retries the Discord connection automatically.
 
@@ -105,9 +112,9 @@ If the activity appears briefly and disappears:
 
 1. Close vatSys completely.
 2. Remove old `Discord-RP` or duplicate Discord Presence plugin folders.
-3. Keep one `DiscordRichPresence` folder in the active profile.
+3. Keep one `DiscordRichPresence` folder, either in `<vatSys root>in\Plugins` or in the active profile's `Plugins` folder.
 4. Confirm that Discord Desktop is running and activity sharing is enabled.
-5. Start vatSys and select the profile containing the plugin.
+5. Start vatSys.
 
 ## Verification
 

@@ -4,8 +4,10 @@
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>11</LangVersion>
     <AssemblyName>VatSys.DiscordRichPresence</AssemblyName>
-    <VatSysPath Condition="'$(VatSysPath)' == ''">$(MSBuildThisFileDirectory)..\VATSYS-Recovered-Source-main\vatSys\bin\vatSys.exe</VatSysPath>
+    <VatSysSourcePath Condition="'$(VatSysSourcePath)' == ''">$(MSBuildThisFileDirectory)..\..\source-code</VatSysSourcePath>
+    <VatSysPath Condition="'$(VatSysPath)' == ''">$(MSBuildThisFileDirectory)..\..\vatSys\bin\vatSys.exe</VatSysPath>
     <VatSysDirectory>$([System.IO.Path]::GetDirectoryName('$(VatSysPath)'))</VatSysDirectory>
+    <AppIconPath Condition="'$(AppIconPath)' == ''">$(VatSysSourcePath)\vatSys\app.ico</AppIconPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="vatSys"><HintPath>$(VatSysPath)</HintPath><Private>false</Private></Reference>
@@ -14,7 +16,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Web.Extensions" />
     <None Update="presence.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\VATSYS-Recovered-Source-main\vatSys\app.ico" Link="app.ico" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(AppIconPath)" Link="app.ico" CopyToOutputDirectory="PreserveNewest" Condition="Exists('$(AppIconPath)')" />
   </ItemGroup>
   <Target Name="CheckVatSysReference" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(VatSysPath)')" Text="vatSys.exe was not found. Build with -p:VatSysPath=&quot;C:\path\to\vatSys\bin\vatSys.exe&quot;." />

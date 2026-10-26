@@ -1,20 +1,46 @@
+param(
+    [string]$VatSysExe = (Join-Path $PSScriptRoot '..\vatSys\bin\vatSys.exe'),
+    [string]$AppIcon = (Join-Path $PSScriptRoot '..\source-code\vatSys\app.ico'),
+    [string]$Version = '1.0.3'
+)
+
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$vatSysExe = 'I:\vatSys\vatSys\bin\vatSys.exe'
-$vatSysDll = 'I:\vatSys\vatSys\bin\RossCarlson.Vatsim.Network.dll'
-if (-not (Test-Path -LiteralPath $vatSysExe -PathType Leaf)) { throw "vatSys executable not found: $vatSysExe" }
+$root = $PSScriptRoot
+$VatSysExe = [System.IO.Path]::GetFullPath($VatSysExe)
+$AppIcon = [System.IO.Path]::GetFullPath($AppIcon)
+$vatSysDll = Join-Path (Split-Path -Parent $VatSysExe) 'RossCarlson.Vatsim.Network.dll'
+if (-not (Test-Path -LiteralPath $VatSysExe -PathType Leaf)) { throw "vatSys executable not found: $VatSysExe" }
 if (-not (Test-Path -LiteralPath $vatSysDll -PathType Leaf)) { throw "vatSys network reference not found: $vatSysDll" }
-dotnet restore (Join-Path $root 'DiscordRichPresence\DiscordRichPresence.csproj') --ignore-failed-sources
-dotnet build (Join-Path $root 'DiscordRichPresence\DiscordRichPresence.csproj') -c Release --no-restore -p:VatSysPath=$vatSysExe
+if (-not (Test-Path -LiteralPath $AppIcon -PathType Leaf)) { throw "vatSys icon not found: $AppIcon" }
+
+$project = Join-Path $root 'DiscordRichPresence\DiscordRichPresence.csproj'
+dotnet restore $project --ignore-failed-sources
+if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed.' }
+dotnet build $project -c Release --no-restore "-p:VatSysPath=$VatSysExe" "-p:AppIconPath=$AppIcon"
+if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' }
+
+# The archive mirrors the vatSys installation folder, so it can be extracted
+# straight into the vatSys root (the folder that contains bin\vatSys.exe).
+# vatSys loads every DLL under <vatSys root>\bin\Plugins for all profiles.
 $release = Join-Path $root 'release'
 if (Test-Path -LiteralPath $release) { Remove-Item -LiteralPath $release -Recurse -Force }
-New-Item -ItemType Directory -Path $release | Out-Null
+$pluginDir = Join-Path $release 'bin\Plugins\DiscordRichPresence'
+New-Item -ItemType Directory -Path $pluginDir | Out-Null
 $output = Join-Path $root 'DiscordRichPresence\bin\Release\net472'
-Copy-Item (Join-Path $output 'VatSys.DiscordRichPresence.dll') $release
-Copy-Item (Join-Path $root 'DiscordRichPresence\presence.json') $release
-Copy-Item (Join-Path $root 'VATSYS-Recovered-Source-main\vatSys\app.ico') (Join-Path $release 'app.ico')
-Copy-Item (Join-Path $root 'LICENSE') (Join-Path $release 'LICENSE')
-$zip = Join-Path $root 'vatSys-Discord-RP-v1.0.2.zip'
+Copy-Item (Join-Path $output 'VatSys.DiscordRichPresence.dll') $pluginDir
+Copy-Item (Join-Path $root 'DiscordRichPresence\presence.json') $pluginDir
+Copy-Item $AppIcon (Join-Path $pluginDir 'app.ico')
+Copy-Item (Join-Path $root 'LICENSE') $pluginDir
+
+$zip = Join-Path $root "vatSys-Discord-RP-v$Version.zip"
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
-Compress-Archive -Path (Join-Path $release '*') -DestinationPath $zip
+Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+$archive = [System.IO.Compression.ZipFile]::Open($zip, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    Get-ChildItem -LiteralPath $release -Recurse -File | ForEach-Object {
+        $entry = $_.FullName.Substring($release.Length + 1).Replace('\', '/')
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $_.FullName, $entry) | Out-Null
+    }
+}
+finally { $archive.Dispose() }
 Write-Output "Release package: $zip"
